@@ -60,6 +60,9 @@ MIDDLEWARE = [
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": ("knox.auth.TokenAuthentication",),
 }
+REST_KNOX = {
+    "USER_SERIALIZER": "core.serializers.RegisterSerializer",
+}
 AUTH_USER_MODEL = "core.SubscriptionUser"
 CORS_ALLOWED_ORIGINS = ["http://localhost:3000"]
 
