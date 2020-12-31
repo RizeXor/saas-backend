@@ -79,3 +79,37 @@ class MeView(generics.ListAPIView):
                 "last_name": user.last_name,
             }
         )
+
+
+class ProductsView(generics.ListAPIView):
+    permission_classes = (permissions.AllowAny,)
+
+    def list(self, request):
+        products = stripe.Product.list()
+        index = 0
+        for product in products.data:
+            prices = stripe.Price.list(product=product["id"])
+            products.data[index]["prices"] = prices.data
+            index += 1
+        return Response(products.data)
+
+
+class CheckoutView(generics.CreateAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def post(self, request):
+        print(request.data)
+        checkout_session = stripe.checkout.Session.create(
+            payment_method_types=["card"],
+            mode="subscription",
+            line_items=[
+                {
+                    "price": request.data["price_id"],
+                    "quantity": 1,
+                }
+            ],
+            success_url="http://localhost:3000" + "/success.html",
+            cancel_url="http://localhost:3000" + "/cancel.html",
+        )
+        print(type(checkout_session.id))
+        return Response({"id": checkout_session.id})
